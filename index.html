@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Biomedical Service Invoice</title>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1ef;--panel:#fff;--ink:#16231f;--mute:#5d6b66;--line:#d5ddd9;--accent:#0b6e5a;--accent-ink:#fff;--gold:#e3a72f;--danger:#b3372b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1513;--panel:#17211e;--ink:#e8efec;--mute:#93a39d;--line:#2a3833;--accent:#3fc2a3;--accent-ink:#04201a}}
+:root[data-theme="dark"]{--bg:#0e1513;--panel:#17211e;--ink:#e8efec;--mute:#93a39d;--line:#2a3833;--accent:#3fc2a3;--accent-ink:#04201a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 16px;position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);z-index:5;border-bottom:1px solid var(--line)}
+h1{font-size:18px;margin:0;font-weight:700;letter-spacing:-.01em}
+.tabs{display:flex;gap:4px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px}
+.tabs button{border:0;background:none;color:var(--mute);font:inherit;font-weight:600;padding:6px 14px;border-radius:7px;cursor:pointer}
+.tabs button.on{background:var(--accent);color:var(--accent-ink)}
+main{max-width:1100px;margin:0 auto;padding:16px;display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:900px){main{grid-template-columns:minmax(0,420px) minmax(0,1fr)}.tabs{display:none}#edit,#view{display:block!important}}
+#view{display:none}
+section.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+h2{font-size:14px;margin:0 0 10px;font-weight:700}
+label{display:block;font-size:12px;color:var(--mute);font-weight:600;margin:8px 0 3px}
+input,textarea,select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+input:focus,textarea:focus,select:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+textarea{resize:vertical;min-height:60px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.item{border-top:1px dashed var(--line);padding-top:8px;margin-top:8px}
+.item .row3{display:grid;grid-template-columns:70px 1fr 28px;gap:8px;align-items:end}
+.x{border:0;background:none;color:var(--danger);font-size:20px;cursor:pointer;padding:6px}
+.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-weight:600;border-radius:9px;padding:10px 14px;cursor:pointer}
+.btn.p{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:4px}.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);font:inherit;font-size:12.5px;border-radius:999px;padding:5px 11px;cursor:pointer}.chip:active{background:var(--accent);color:var(--accent-ink)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.paper{background:#fff;color:#16231f;border-radius:6px;padding:28px 24px;box-shadow:0 1px 3px rgba(0,0,0,.18);border-top:6px solid var(--gold);font-size:13.5px}
+.paper h3{margin:0;font-size:26px;letter-spacing:-.02em}
+.top{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.paper .meta{text-align:right;color:#4b5a55}
+.paper .meta b{color:#16231f}
+.parties{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:22px 0}
+.parties small{color:#6b7a75;font-weight:600;display:block;margin-bottom:3px}
+.pre{white-space:pre-line}
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:380px}
+th{text-align:left;font-size:12px;color:#6b7a75;border-bottom:2px solid #16231f;padding:6px 4px}
+td{padding:8px 4px;border-bottom:1px solid #e3e8e5;vertical-align:top}
+.r{text-align:right;white-space:nowrap}
+.tot{margin:14px 0 0 auto;width:min(260px,100%)}
+.tot div{display:flex;justify-content:space-between;padding:3px 0}
+.tot .g{border-top:2px solid #16231f;margin-top:6px;padding-top:8px;font-size:17px;font-weight:700}
+.notes{margin-top:22px;color:#4b5a55}
+.empty{color:#9aa7a2}
+@media print{
+ @page{margin:12mm}
+ body{background:#fff}header,#edit,.noprint{display:none!important}
+ main{display:block;padding:0;max-width:none}#view{display:block!important}
+ .paper{box-shadow:none;border-radius:0;padding:0;border-top-width:6px}
+}
+</style>
+</head>
+<body>
+<header>
+  <h1>Service Invoice</h1>
+  <div class="tabs" role="tablist"><button id="tEdit" class="on">Edit</button><button id="tView">Preview</button></div>
+</header>
+<main>
+<div id="edit">
+  <section class="card">
+    <h2>Your business</h2>
+    <label for="bName">Business name</label><input id="bName" autocomplete="organization">
+    <label for="bAddr">Address and contact</label><textarea id="bAddr" placeholder="Town, region&#10;Phone, email"></textarea>
+    <label for="bPay">Payment details</label><textarea id="bPay" placeholder="MoMo number, bank account, etc."></textarea>
+  </section>
+  <section class="card">
+    <h2>Invoice</h2>
+    <div class="row">
+      <div><label for="num">Invoice no.</label><input id="num"></div>
+      <div><label for="cur">Currency</label>
+        <select id="cur"><option value="GHS">GHS (GH₵)</option><option value="USD">USD ($)</option><option value="EUR">EUR (€)</option><option value="GBP">GBP (£)</option><option value="NGN">NGN (₦)</option></select></div>
+      <div><label for="date">Issue date</label><input id="date" type="date"></div>
+      <div><label for="due">Due date</label><input id="due" type="date"></div>
+      <div><label for="sdate">Service date</label><input id="sdate" type="date"></div>
+      <div><label for="wo">Work order / ref</label><input id="wo" placeholder="WO-0001"></div>
+    </div>
+    <label for="cName">Facility / client</label><input id="cName" placeholder="Hospital, clinic or company">
+    <label for="cAddr">Client address and contact</label><textarea id="cAddr"></textarea>
+  </section>
+  <section class="card">
+    <h2>Items</h2>
+    <label>Quick add</label><div class="chips" id="chips"></div><div id="items"></div>
+    <div class="actions" style="margin-top:10px"><button class="btn" id="add">Add item</button></div>
+    <div class="row" style="margin-top:6px">
+      <div><label for="tax">Tax (%)</label><input id="tax" type="number" min="0" step="any" inputmode="decimal" value="0"></div>
+      <div><label for="disc">Discount (amount)</label><input id="disc" type="number" min="0" step="any" inputmode="decimal" value="0"></div>
+    </div>
+    <label for="notes">Notes</label><textarea id="notes" placeholder="Warranty and terms"></textarea>
+  </section>
+  <div class="actions">
+    <button class="btn p" id="print">Print or save PDF</button>
+    <button class="btn" id="fresh">New invoice</button>
+  </div>
+  <p class="noprint" style="color:var(--mute);font-size:12px">Your business details and invoice number are saved on this device. In the print dialog, choose "Save as PDF" to get a file.</p>
+</div>
+<div id="view"><div class="paper" id="paper"></div></div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const SYM={GHS:'GH₵',USD:'$',EUR:'€',GBP:'£',NGN:'₦'};
+const KEY='invoice-maker-v1';
+let items=[{d:'',e:'',q:1,p:0}];
+const store={get(){try{return JSON.parse(localStorage.getItem(KEY))||{}}catch(e){return {}}},set(o){try{localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}};
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const iso=d=>d.toISOString().slice(0,10);
+function fmtDate(s){if(!s)return '';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}
+function money(n){return SYM[$('cur').value]+' '+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}
+function nextNum(n){const m=/^(.*?)(\d+)$/.exec(n||'');if(!m)return 'INV-001';return m[1]+String(+m[2]+1).padStart(m[2].length,'0')}
+const PRESETS=['Preventive maintenance','Corrective repair','Calibration and performance check','Electrical safety testing','Installation and commissioning','Staff training','Spare parts','Call-out and transport'];
+$('chips').innerHTML=PRESETS.map((x,i)=>`<button class="chip" data-pre="${i}">${x}</button>`).join('');
+function renderItems(){
+  $('items').innerHTML=items.map((it,i)=>`<div class="item"><label>Service or part</label><input data-i="${i}" data-k="d" value="${esc(it.d)}" placeholder="e.g. Preventive maintenance"><label>Equipment (make, model, serial no.)</label><input data-i="${i}" data-k="e" value="${esc(it.e||'')}" placeholder="e.g. Mindray BeneView T5, SN 12345">
+  <div class="row3"><div><label>Qty</label><input data-i="${i}" data-k="q" type="number" min="0" step="any" inputmode="decimal" value="${it.q}"></div>
+  <div><label>Unit price</label><input data-i="${i}" data-k="p" type="number" min="0" step="any" inputmode="decimal" value="${it.p}"></div>
+  <button class="x" data-del="${i}" aria-label="Remove item">×</button></div></div>`).join('');
+}
+function calc(){
+  const sub=items.reduce((a,it)=>a+(+it.q||0)*(+it.p||0),0);
+  const disc=Math.min(+$('disc').value||0,sub);
+  const tax=(sub-disc)*(+$('tax').value||0)/100;
+  return {sub,disc,tax,total:sub-disc+tax};
+}
+function render(){
+  const c=calc(),rows=items.filter(it=>it.d||+it.p).map(it=>`<tr><td>${esc(it.d)}${it.e?`<div style="color:#6b7a75;font-size:12px">${esc(it.e)}</div>`:''}</td><td class="r">${+it.q||0}</td><td class="r">${money(+it.p||0)}</td><td class="r">${money((+it.q||0)*(+it.p||0))}</td></tr>`).join('')||'<tr><td colspan="4" class="empty">No items yet</td></tr>';
+  $('paper').innerHTML=`<div class="top"><div><h3>${esc($('bName').value)||'<span class="empty">Your business</span>'}</h3><div class="pre" style="color:#4b5a55;margin-top:4px">${esc($('bAddr').value)}</div></div>
+  <div class="meta"><div style="font-size:20px;font-weight:700;color:#16231f">Invoice</div><div><b>${esc($('num').value)}</b></div><div>Issued ${fmtDate($('date').value)}</div>${$('sdate').value?`<div>Serviced ${fmtDate($('sdate').value)}</div>`:''}${$('wo').value?`<div>Ref <b>${esc($('wo').value)}</b></div>`:''}${$('due').value?`<div>Due <b>${fmtDate($('due').value)}</b></div>`:''}</div></div>
+  <div class="parties"><div><small>Bill to</small><b>${esc($('cName').value)||'<span class="empty">Client name</span>'}</b><div class="pre">${esc($('cAddr').value)}</div></div>
+  <div><small>Amount due</small><b style="font-size:20px">${money(c.total)}</b></div></div>
+  <div class="tw"><table><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Price</th><th class="r">Amount</th></tr></thead><tbody>${rows}</tbody></table></div>
+  <div class="tot"><div><span>Subtotal</span><span>${money(c.sub)}</span></div>${c.disc?`<div><span>Discount</span><span>−${money(c.disc)}</span></div>`:''}${c.tax?`<div><span>Tax (${+$('tax').value}%)</span><span>${money(c.tax)}</span></div>`:''}<div class="g"><span>Total</span><span>${money(c.total)}</span></div></div>
+  ${$('bPay').value?`<div class="notes"><b>Payment details</b><div class="pre">${esc($('bPay').value)}</div></div>`:''}
+  ${$('notes').value?`<div class="notes pre">${esc($('notes').value)}</div>`:''}`;
+}
+function persist(){store.set({bName:$('bName').value,bAddr:$('bAddr').value,bPay:$('bPay').value,cur:$('cur').value,num:$('num').value,tax:$('tax').value,notes:$('notes').value})}
+function reset(keepNum){
+  const s=store.get();
+  ['bName','bAddr','bPay','notes'].forEach(k=>$(k).value=s[k]||'');
+  $('cur').value=s.cur||'GHS';$('tax').value=s.tax||0;$('disc').value=0;
+  $('num').value=keepNum?nextNum(s.num):(s.num||'INV-001');
+  if(!s.bName)$('bName').value='Bishop Biomedical Services';
+  $('cName').value='';$('cAddr').value='';$('wo').value='';
+  if(s.notes===undefined)$('notes').value='Warranty: 90 days on labour and replaced parts. Equipment tested and verified safe for clinical use before handover.';
+  const d=new Date();$('date').value=iso(d);$('sdate').value=iso(d);d.setDate(d.getDate()+14);$('due').value=iso(d);
+  items=[{d:'',e:'',q:1,p:0}];renderItems();render();
+}
+document.addEventListener('input',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.i!==undefined){items[+t.dataset.i][t.dataset.k]=t.dataset.k==='d'?t.value:t.value;}
+  render();persist();
+});
+document.addEventListener('click',e=>{
+  const t=e.target;
+  if(t.dataset&&t.dataset.pre!==undefined){const last=items[items.length-1];if(last&&!last.d&&!+last.p)last.d=PRESETS[+t.dataset.pre];else items.push({d:PRESETS[+t.dataset.pre],e:'',q:1,p:0});renderItems();render();return}
+  if(t.dataset&&t.dataset.del!==undefined){items.splice(+t.dataset.del,1);if(!items.length)items.push({d:'',e:'',q:1,p:0});renderItems();render()}
+});
+$('add').onclick=()=>{items.push({d:'',e:'',q:1,p:0});renderItems();const f=$('items').querySelectorAll('input[data-k="d"]');f[f.length-1].focus()};
+$('print').onclick=()=>{persist();window.print()};
+$('fresh').onclick=()=>{if(confirm('Start a new invoice? The current one will be cleared.')){const s=store.get();s.num=$('num').value;store.set(s);reset(true);scrollTo(0,0)}};
+function tab(v){$('edit').style.display=v?'none':'block';$('view').style.display=v?'block':'none';$('tEdit').classList.toggle('on',!v);$('tView').classList.toggle('on',v);scrollTo(0,0)}
+$('tEdit').onclick=()=>tab(false);$('tView').onclick=()=>tab(true);
+reset(false);
+</script>
+</body>
+</html>
